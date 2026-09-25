@@ -1,0 +1,6 @@
+form StudentRegistration {
+    field name string required min 5 max 20;
+    field age integer required;
+    field email_id email required;
+    submit "Register";
+}
