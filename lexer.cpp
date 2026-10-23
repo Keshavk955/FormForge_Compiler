@@ -138,13 +138,10 @@ vector<Token> Lexer::tokenize()
 
             string text;
 
-            while(currentChar() != '"' && currentChar() != '\0')
+            while(currentChar() != '"' &&
+                  currentChar() != '\0' &&
+                  currentChar() != '\n')
             {
-                if(currentChar() == '\n')
-                {
-                    break;
-                }
-
                 text += currentChar();
                 advance();
             }
@@ -152,11 +149,21 @@ vector<Token> Lexer::tokenize()
             if(currentChar() == '"')
             {
                 advance();
-                tokens.push_back({TokenType::STRING_LITERAL, text, startLine});
+
+                tokens.push_back(
+                    {TokenType::STRING_LITERAL, text, startLine}
+                );
             }
             else
             {
-                tokens.push_back({TokenType::INVALID, text, startLine});
+                tokens.push_back(
+                    {
+                        TokenType::INVALID,
+                        text,
+                        startLine,
+                        "Unterminated string literal."
+                    }
+                );
             }
 
             continue;
@@ -183,7 +190,10 @@ vector<Token> Lexer::tokenize()
             continue;
         }
 
-        tokens.push_back({TokenType::INVALID, string(1, c), startLine});
+        tokens.push_back(
+            {TokenType::INVALID, string(1, c), startLine}
+        );
+
         advance();
     }
 

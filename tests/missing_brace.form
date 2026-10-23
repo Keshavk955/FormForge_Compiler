@@ -1,0 +1,4 @@
+form MissingBrace {
+    field name string required;
+    field age integer min 18 max 60;
+    submit "Register";

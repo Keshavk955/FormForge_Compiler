@@ -1,0 +1,4 @@
+form LargeNumberTest {
+    field age integer min 999999999999999999999999 max 100;
+    submit "Register";
+}

@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <cstddef>
 
 using namespace std;
 
@@ -18,15 +19,12 @@ enum class TokenType
     MIN,
     MAX,
     SUBMIT,
-
     IDENTIFIER,
     NUMBER,
     STRING_LITERAL,
-
     LBRACE,
     RBRACE,
     SEMICOLON,
-
     INVALID,
     END_OF_FILE
 };
@@ -36,13 +34,23 @@ struct Token
     TokenType type;
     string lexeme;
     int line;
+    string errorMessage;
+
+    Token(TokenType type, string lexeme, int line,
+          string errorMessage = "")
+    {
+        this->type = type;
+        this->lexeme = lexeme;
+        this->line = line;
+        this->errorMessage = errorMessage;
+    }
 };
 
 class Lexer
 {
 private:
     string source;
-    int position;
+    size_t position;
     int line;
 
     char currentChar();

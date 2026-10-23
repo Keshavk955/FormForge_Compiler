@@ -1,0 +1,4 @@
+form ConstraintTest {
+    field age integer min 10 min 20;
+    submit "Register";
+}

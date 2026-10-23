@@ -1,0 +1,7 @@
+form ContactForm {
+    field full_name string;
+    field age integer min 18;
+    field rating integer max 5;
+    field email_id email required;
+    submit "<Save & Continue>";
+}

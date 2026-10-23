@@ -1,0 +1,4 @@
+form StringTest {
+    field name string;
+    submit "Register;
+}

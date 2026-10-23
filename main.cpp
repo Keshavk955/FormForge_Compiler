@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+
 #include "lexer.h"
 #include "parser.h"
 #include "symbol_table.h"
@@ -42,15 +43,22 @@ int main(int argc, char* argv[])
     cout << "STEP 1: LEXICAL ANALYSIS" << endl;
     cout << "Tokens generated: " << tokens.size() - 1 << endl;
 
-    for(Token token : tokens)
+    for(const Token& token : tokens)
     {
         if(token.type == TokenType::INVALID)
         {
             cout << "Lexical Error at line "
-                 << token.line
-                 << ": Invalid token '"
-                 << token.lexeme
-                 << "'." << endl;
+                 << token.line << ": ";
+
+            if(!token.errorMessage.empty())
+            {
+                cout << token.errorMessage << endl;
+            }
+            else
+            {
+                cout << "Invalid token '"
+                     << token.lexeme << "'." << endl;
+            }
 
             return 1;
         }
@@ -71,7 +79,7 @@ int main(int argc, char* argv[])
         cout << "STEP 3: ABSTRACT SYNTAX TREE" << endl;
         cout << "FORM: " << form.name << endl;
 
-        for(FieldNode field : form.fields)
+        for(const FieldNode& field : form.fields)
         {
             cout << "|-- FIELD: " << field.name << endl;
 
@@ -121,7 +129,6 @@ int main(int argc, char* argv[])
         cout << endl;
 
         IRGenerator irGenerator;
-
         FormIR ir = irGenerator.generate(form);
 
         cout << "STEP 6: INTERMEDIATE REPRESENTATION" << endl;

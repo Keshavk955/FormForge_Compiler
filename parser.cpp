@@ -1,7 +1,41 @@
 #include "parser.h"
 #include <stdexcept>
+#include <limits>
 
 using namespace std;
+
+namespace
+{
+    int parseIntegerLiteral(const Token& token)
+    {
+        unsigned long long value;
+
+        try
+        {
+            value = stoull(token.lexeme);
+        }
+        catch(const exception&)
+        {
+            throw runtime_error(
+                "Syntax Error at line " +
+                to_string(token.line) +
+                ": Integer literal is outside the supported range."
+            );
+        }
+
+        if(value > static_cast<unsigned long long>(
+                       numeric_limits<int>::max()))
+        {
+            throw runtime_error(
+                "Syntax Error at line " +
+                to_string(token.line) +
+                ": Integer literal is outside the supported range."
+            );
+        }
+
+        return static_cast<int>(value);
+    }
+}
 
 Parser::Parser(vector<Token> tokens)
 {
@@ -109,6 +143,10 @@ FieldNode Parser::parseField()
     field.minValue = 0;
     field.maxValue = 0;
 
+    bool seenRequired = false;
+    bool seenMin = false;
+    bool seenMax = false;
+
     consume(
         TokenType::FIELD,
         "Expected 'field'."
@@ -145,9 +183,9 @@ FieldNode Parser::parseField()
     while(!check(TokenType::SEMICOLON))
     {
         if(check(TokenType::FIELD) ||
-        check(TokenType::SUBMIT) ||
-        check(TokenType::RBRACE) ||
-        check(TokenType::END_OF_FILE))
+           check(TokenType::SUBMIT) ||
+           check(TokenType::RBRACE) ||
+           check(TokenType::END_OF_FILE))
         {
             throw runtime_error(
                 "Syntax Error at line " +
@@ -158,27 +196,59 @@ FieldNode Parser::parseField()
 
         if(match(TokenType::REQUIRED))
         {
+            if(seenRequired)
+            {
+                throw runtime_error(
+                    "Syntax Error at line " +
+                    to_string(previous().line) +
+                    ": Duplicate 'required' constraint."
+                );
+            }
+
+            seenRequired = true;
             field.required = true;
         }
         else if(match(TokenType::MIN))
         {
+            if(seenMin)
+            {
+                throw runtime_error(
+                    "Syntax Error at line " +
+                    to_string(previous().line) +
+                    ": Duplicate 'min' constraint."
+                );
+            }
+
+            seenMin = true;
+
             Token value = consume(
                 TokenType::NUMBER,
                 "Expected number after 'min'."
             );
 
             field.hasMin = true;
-            field.minValue = stoi(value.lexeme);
+            field.minValue = parseIntegerLiteral(value);
         }
         else if(match(TokenType::MAX))
         {
+            if(seenMax)
+            {
+                throw runtime_error(
+                    "Syntax Error at line " +
+                    to_string(previous().line) +
+                    ": Duplicate 'max' constraint."
+                );
+            }
+
+            seenMax = true;
+
             Token value = consume(
                 TokenType::NUMBER,
                 "Expected number after 'max'."
             );
 
             field.hasMax = true;
-            field.maxValue = stoi(value.lexeme);
+            field.maxValue = parseIntegerLiteral(value);
         }
         else
         {

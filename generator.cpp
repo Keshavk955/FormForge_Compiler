@@ -1,5 +1,25 @@
 #include "generator.h"
 
+string escapeHTML(const string& text)
+{
+    string result;
+
+    for(char c : text)
+    {
+        switch(c)
+        {
+            case '&': result += "&amp;"; break;
+            case '<': result += "&lt;"; break;
+            case '>': result += "&gt;"; break;
+            case '"': result += "&quot;"; break;
+            case '\'': result += "&#39;"; break;
+            default: result += c;
+        }
+    }
+
+    return result;
+}
+
 using namespace std;
 
 bool CodeGenerator::generate(FormIR& ir)
@@ -77,7 +97,7 @@ bool CodeGenerator::generate(FormIR& ir)
     }
 
     file << "<button type=\"submit\">";
-    file << ir.submitText;
+    file << escapeHTML(ir.submitText);
     file << "</button>\n";
 
     file << "</form>\n";
